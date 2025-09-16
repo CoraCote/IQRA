@@ -16,10 +16,23 @@ interface ChatMessage {
 
 @WebSocketGateway({
     cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: (origin, callback) => {
+            let allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+            if (allowedOrigin.endsWith('/')) {
+                allowedOrigin = allowedOrigin.slice(0, -1); // remove trailing slash
+            }
+
+            if (!origin || origin === allowedOrigin) {
+                callback(null, true);
+            } else {
+                callback(new Error(`CORS blocked for origin: ${origin}`));
+            }
+        },
         credentials: true,
+        methods: ['GET', 'POST'],
     },
 })
+
 export class ChatGateway {
     @WebSocketServer()
     server: Server;
