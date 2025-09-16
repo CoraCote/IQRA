@@ -25,21 +25,21 @@
         "@supabase/supabase-js": "^2.38.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.0",
+        "compression": "^1.7.4",
+        "helmet": "^7.0.0",
         "multer": "^1.4.5-lts.1",
         "openai": "^4.20.0",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",
         "socket.io": "^4.8.1",
-        "twilio": "^4.19.0",
-        "helmet": "^7.0.0",
-        "compression": "^1.7.4"
+        "twilio": "^4.19.0"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.4.9",
         "@nestjs/schematics": "^11.0.7",
+        "@types/compression": "^1.7.2",
         "@types/multer": "^1.4.8",
         "@types/node": "^20.3.1",
-        "@types/compression": "^1.7.2",
         "typescript": "^5.1.3"
     }
 }
