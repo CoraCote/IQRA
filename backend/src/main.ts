@@ -6,42 +6,49 @@ import helmet from 'helmet';
 import * as compression from 'compression';
 
 async function bootstrap() {
-    const logger = new Logger('Bootstrap');
-    
-    try {
-        const app = await NestFactory.create(AppModule);
-        const configService = app.get(ConfigService);
+  const logger = new Logger('Bootstrap');
 
-        // Security middleware
-        app.use(helmet());
-        app.use(compression());
+  try {
+    const app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
 
-        // Global validation pipe
-        app.useGlobalPipes(new ValidationPipe({
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transform: true,
-        }));
+    // Security middleware
+    app.use(helmet());
+    app.use(compression());
 
-        // CORS configuration
-        app.enableCors({
-            origin: configService.get('FRONTEND_URL') || 'http://localhost:3000',
-            credentials: true,
-            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-        });
+    // Global validation pipe
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
 
-        const port = configService.get('PORT') || 3001;
-        await app.listen(port);
-        
-        logger.log(`🚀 AI Restaurant Assistant API running on port ${port}`);
-        logger.log(`🌐 Environment: ${configService.get('NODE_ENV') || 'development'}`);
-        logger.log(`📱 Frontend URL: ${configService.get('FRONTEND_URL') || 'http://localhost:3000'}`);
-        
-    } catch (error) {
-        logger.error('❌ Failed to start application:', error);
-        process.exit(1);
+    // Get frontend URL from env, ensure no trailing slash
+    let frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    if (frontendUrl.endsWith('/')) {
+      frontendUrl = frontendUrl.slice(0, -1);
     }
+
+    // CORS configuration
+    app.enableCors({
+      origin: frontendUrl,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    });
+
+    const port = configService.get<number>('PORT') || 3001;
+    await app.listen(port);
+
+    logger.log(`🚀 AI Restaurant Assistant API running on port ${port}`);
+    logger.log(`🌐 Environment: ${configService.get('NODE_ENV') || 'development'}`);
+    logger.log(`📱 Frontend URL: ${frontendUrl}`);
+  } catch (error) {
+    logger.error('❌ Failed to start application:', error);
+    process.exit(1);
+  }
 }
 
 bootstrap();
